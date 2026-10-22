@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal AI Agent Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-gold: #c5a059;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            margin: 0;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin: 4px 0 0 0;
+        }
+
+        .upload-card {
+            background: var(--card-bg);
+            border: 2px dashed var(--accent-gold);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-card:hover {
+            background: #283548;
+        }
+
+        .icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .status-box {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            display: none;
+            border: 1px solid var(--border-color);
+        }
+
+        .timer {
+            font-size: 18px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            text-align: center;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>⚖️ Legal AI Agent</h1>
+        <p>O'zR Fuqarolik Kodeksi va Lex.uz asosida shartnoma tahlili</p>
+    </div>
+
+    <div class="upload-card" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📄</div>
+        <div style="font-size: 15px; font-weight: 600;">Shartnoma faylini tanlang</div>
+        <div style="font-size: 12px; color: var(--text-sub); margin-top: 4px;">PDF yoki DOCX formatida</div>
+        <input type="file" id="fileInput" accept=".pdf,.docx,.doc" style="display: none;" onchange="handleFileSelect(event)">
+    </div>
+
+    <div id="statusBox" class="status-box">
+        <div style="text-align: center;" id="statusText">⏳ Fayl yuklandi. Tahlil boshlanmoqda...</div>
+        <div class="timer" id="timer">02:00</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('statusBox').style.display = 'block';
+                document.getElementById('statusText').innerText = `📄 "${file.name}" tahlil qilinmoqda...`;
+                startTimer(120);
+                
+                tg.sendData(JSON.stringify({ action: "file_uploaded", fileName: file.name }));
+            }
+        }
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            const timerDisplay = document.getElementById('timer');
+            const interval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerDisplay.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    document.getElementById('statusText').innerText = "✅ Tahlil yakunlandi! Natija Telegram chatga yuborildi.";
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
